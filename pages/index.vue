@@ -6,11 +6,16 @@
         </div>
     </section>
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 sm:gap-16 mb-10">
-        <Trend color="green" title="Thu nhập" :amount="4000" :lastAmount="3000" :loading="false"/>
-        <Trend color="red" title="Thu nhập" :amount="4000" :lastAmount="3000" :loading="true"/>
-        <Trend color="green" title="Thu nhập" :amount="4000" :lastAmount="3000" :loading="true"/>
+        <Trend  color="green" title="Thu nhập" :amount="4000" :lastAmount="3000" :loading="false"/>
         <Trend color="red" title="Thu nhập" :amount="4000" :lastAmount="3000" :loading="false"/>
-
+        <Trend color="green" title="Thu nhập" :amount="4000" :lastAmount="5000" :loading="false"/>
+        <Trend color="red" title="Thu nhập" :amount="4000" :lastAmount="5000" :loading="false"/>
+    </section>
+    <section>
+        <Transaction/>
+        <Transaction/>
+        <Transaction/>
+        <Transaction/>
     </section>
 </template>
 <script setup>

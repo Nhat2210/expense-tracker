@@ -12,10 +12,8 @@
       <Trend color="red" title="Thu nhập" :amount="4000" :lastAmount="5000" :loading="false"/>
   </section>
   <section>
-      <Transaction/>
-      <Transaction/>
-      <Transaction/>
-      <Transaction/>
+    <h1>TEST API</h1>
+    <Transaction v-for="transaction in transactions" :key="transaction.id" :transaction="transaction"/>
   </section>
 </template>
 <script setup>
@@ -26,12 +24,21 @@ console.log("Xin chao Nnhat");
 
 const supabase = useSupabaseClient();
 
-const { data, error } = await supabase
-  .from('Transactions')
-  .select()
+const transactions = ref([]);
 
+const fetchTransactions = async () => {
+  const { data, error } = await supabase
+    .from('transactions')
+    .select();
 
-console.log(data, error);
+  if (error) {
+    console.error('Lỗi khi fetch transactions:', error);
+    return;
+  }
 
+  transactions.value = data;
+  console.log('Data:', data);
+};
 
+onMounted(fetchTransactions);
 </script>

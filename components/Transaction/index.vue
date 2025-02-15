@@ -2,11 +2,11 @@
     <div class="grid grid-cols-2 py-5 border-b border-gray-200 dark:border-gray-800 text-gray-900 dark-text-gray-100">
         <div class="flex items-center justify-between">
             <div class="flex items-center space-x-1">
-                <UIcon name="i-mdi-arrow-bottom-right-thin" class="text-green-600" />
-                <div>Lương</div>
+                <UIcon name="i-mdi-arrow-bottom-right-thin" class="text-red-600" />
+                <div>{{ transaction.description }}</div>
             </div>
             <div>
-                <UBadge color="white" class="cursor-pointer">Phân loại</UBadge>
+                <UBadge color="white" class="cursor-pointer" v-if="transaction.category">{{ transaction.category }}</UBadge>
             </div>
         </div>
         <div class="flex items-center justify-end space-x-3">
@@ -21,7 +21,13 @@
 </template>
 
 <script setup>
-const { formatCurrency } = useCurrency(300000);
+
+const props = defineProps({
+    transaction: Object
+})
+
+const { formatCurrency } = useCurrency(props.transaction.amount);
+
 const items = [
     [   
     {

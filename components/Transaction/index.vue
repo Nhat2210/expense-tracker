@@ -2,7 +2,8 @@
     <div class="grid grid-cols-2 py-5 border-b border-gray-200 dark:border-gray-800 text-gray-900 dark-text-gray-100">
         <div class="flex items-center justify-between">
             <div class="flex items-center space-x-1">
-                <UIcon name="i-mdi-arrow-bottom-right-thin" class="text-red-600" />
+                <UIcon name="mdi:arrow-top-right" class="text-green-600" v-if="props.transaction.type === 'Income'"/>
+                <UIcon name="mdi:arrow-bottom-right" class="text-red-600" v-else/>
                 <div>{{ transaction.description }}</div>
             </div>
             <div>
@@ -13,7 +14,7 @@
             <div>{{ formatCurrency }}</div>
             <div>
                 <UDropdown :items="items" :popper="{placement: 'bottom-start'}">
-                    <UButton color="white" variant="ghost" trailing-icon="i-mdi-ellipsis-horizontal"/>
+                    <UButton color="white" variant="ghost" trailing-icon="i-mdi-ellipsis-horizontal" :loading="isloading"/>
                 </UDropdown>
             </div>
         </div>
@@ -28,6 +29,35 @@ const props = defineProps({
 
 const { formatCurrency } = useCurrency(props.transaction.amount);
 
+const isLoading = ref(false);
+const toast = useToast();
+const supabase = useSupabaseClient();
+const deleteTransaction = async () => {
+    isLoading.value = true;
+    try{
+        await supabase.from('transactions')
+            .delete()
+            .eq('id', props.transaction.id)
+        toast.add({
+            id: crypto.randomUUID(),
+            title: 'Xoa thanh cong',
+            icon: 'mdi:check-circle-outline'
+        })
+        emit('deleted', props.transaction.id)
+    }
+    catch(error){
+        toast.error({
+            id: crypto.randomUUID(),
+            title: 'Xoa khong thanh cong',
+            icon: 'mdi:exclamation'
+        })
+    }
+    finally{
+        isLoading.value = false;
+    }
+
+}
+
 const items = [
     [   
     {
@@ -41,7 +71,7 @@ const items = [
         label: 'Delete',
         icon: 'i-mdi-delete',
         click : () => {
-            console.log({message: 'Delete'});
+            deleteTransaction();
         }
     }
     ]   

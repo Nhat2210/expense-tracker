@@ -13,18 +13,33 @@
   </section>
   <section>
     <h1>TEST API</h1>
-    <Transaction v-for="transaction in transactions" :key="transaction.id" :transaction="transaction"/>
+    <div v-for="(transactionsOnDay, date) in transactionsGroupedByDate" :key="date" class="mb-10">
+      <Daily-Transaction :date="date" :transactions="transactionsOnDay" />
+      <Transaction v-for="transaction in transactionsOnDay" :key="transaction.id" :transaction="transaction" />
+    </div>
   </section>
 </template>
 <script setup>
 import { transactionViewOptions } from '~/constants';
 const selectedView = ref(transactionViewOptions[1]);
 
-console.log("Xin chao Nnhat");
-
 const supabase = useSupabaseClient();
 
 const transactions = ref([]);
+
+const transactionsGroupedByDate = computed (() => {
+  let grouped = {};
+  for(const transaction of transactions.value) {
+    const date = new Date(transaction.created_at).toISOString().split('T')[0];
+    
+    if(!grouped[date]){
+      grouped[date] = [];
+    }
+    grouped[date].push(transaction);
+  }  
+  return grouped;
+})
+console.log(transactionsGroupedByDate.value); 
 
 const fetchTransactions = async () => {
   const { data, error } = await supabase
@@ -38,7 +53,11 @@ const fetchTransactions = async () => {
 
   transactions.value = data;
   console.log('Data:', data);
+
+
 };
+
+
 
 onMounted(fetchTransactions);
 </script>

@@ -6,23 +6,27 @@
       </div>
   </section>
   <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 sm:gap-16 mb-10">
-      <Trend  color="green" title="Thu nhập" :amount="4000" :lastAmount="3000" :loading="false"/>
-      <Trend color="red" title="Thu nhập" :amount="4000" :lastAmount="3000" :loading="false"/>
-      <Trend color="green" title="Thu nhập" :amount="4000" :lastAmount="5000" :loading="false"/>
-      <Trend color="red" title="Thu nhập" :amount="4000" :lastAmount="5000" :loading="false"/>
+      <Trend  color="green" title="Thu nhập" :amount="incomeTotal" :lastAmount="3000" :loading="isLoading"/>
+      <Trend color="red" title="Thu nhập" :amount="incomeTotal" :lastAmount="3000" :loading="isLoading"/>
+      <Trend color="green" title="Thu nhập" :amount="expenseTotal" :lastAmount="5000" :loading="isLoading"/>
+      <Trend color="red" title="Thu nhập" :amount="expenseTotal" :lastAmount="5000" :loading="isLoading"/>
   </section>
-  <section>
+  <section v-if="!isLoading">
     <h1>TEST API</h1>
     <div v-for="(transactionsOnDay, date) in transactionsGroupedByDate" :key="date" class="mb-10">
       <Daily-Transaction :date="date" :transactions="transactionsOnDay" />
-      <Transaction v-for="transaction in transactionsOnDay" :key="transaction.id" :transaction="transaction" />
+      <Transaction v-for="transaction in transactionsOnDay" :key="transaction.id" :transaction="transaction" @deleted="fetchTransactions()"/>
     </div>
+  </section>
+  <section v-else>
+    <USkeleton class="h-8 w-full mb-2" v-for="i in 4 " :key="i"/>
   </section>
 </template>
 <script setup>
 import { transactionViewOptions } from '~/constants';
 const selectedView = ref(transactionViewOptions[1]);
 
+const isLoading = ref(false);
 const supabase = useSupabaseClient();
 
 const transactions = ref([]);
@@ -41,23 +45,48 @@ const transactionsGroupedByDate = computed (() => {
 })
 console.log(transactionsGroupedByDate.value); 
 
+const income = computed(
+  () => transactions.value.filter(t => t.type === 'Income')
+)
+const expense = computed(
+  () => transactions.value.filter(t => t.type === 'Expense')
+)
+const incomeCount = computed(() => income.value.length)
+const expenseCount = computed(() => expense.value.length)
+const incomeTotal = computed(
+  () => income.value.reduce((sum, transaction) => sum + transaction.amount, 0)
+)
+const expenseTotal = computed(
+  () => expense.value.reduce((sum, transaction) => sum + transaction.amount, 0)
+)
+
 const fetchTransactions = async () => {
-  const { data, error } = await supabase
-    .from('transactions')
-    .select();
+  isLoading.value = true;
+  try {
+    const { data } = await useAsyncData('transactions', async () => {
+      const { data, error } = await supabase
+        .from("transactions")
+        .select();
 
-  if (error) {
-    console.error('Lỗi khi fetch transactions:', error);
-    return;
+      if (error) {
+        console.error("Lỗi khi lấy dữ liệu:", error);
+        return [];
+      }
+      return data;
+    })
+    return data.value; 
+  } finally {
+    isLoading.value = false;
   }
-
-  transactions.value = data;
-  console.log('Data:', data);
-
-
 };
 
 
 
-onMounted(fetchTransactions);
+const refreshfetchTransactions = async () => {
+  transactions.value = await fetchTransactions()
+}
+await refreshfetchTransactions();
+
+
+// onMounted(refreshfetchTransactions);
 </script>

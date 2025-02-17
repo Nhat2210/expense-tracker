@@ -4,6 +4,6 @@
       <NuxtPage/>
     </UContainer>
 
-    <!-- <UNotification/> -->
   </NuxtLayout>
+  <UNotifications />
 </template>

@@ -14,7 +14,7 @@
             <div>{{ formatCurrency }}</div>
             <div>
                 <UDropdown :items="items" :popper="{placement: 'bottom-start'}">
-                    <UButton color="white" variant="ghost" trailing-icon="i-mdi-ellipsis-horizontal" :loading="isloading"/>
+                    <UButton color="white" variant="ghost" trailing-icon="i-mdi-ellipsis-horizontal" :loading="isLoading"/>
                 </UDropdown>
             </div>
         </div>
@@ -26,6 +26,8 @@
 const props = defineProps({
     transaction: Object
 })
+
+const emit = defineEmits(['deleted'])
 
 const { formatCurrency } = useCurrency(props.transaction.amount);
 

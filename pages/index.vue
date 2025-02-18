@@ -11,8 +11,20 @@
       <Trend color="green" title="Thu nhập" :amount="expenseTotal" :lastAmount="5000" :loading="isLoading"/>
       <Trend color="red" title="Thu nhập" :amount="expenseTotal" :lastAmount="5000" :loading="isLoading"/>
   </section>
+  <section class="flex justify-between items-center mb-10">
+    <div>
+      <h2 class="text-xl font-extrabold">Chi tieu</h2>
+      <p class="text-gray-500 dark:text-gray-600">
+        Ban da kiem duoc {{ incomeTotal }} va tieu {{ expenseTotal }}
+      </p>
+    </div>
+    <div>
+      <ModalTransaction v-model="isOpen"/>
+      <UButton icon="mdi:plus-circle-outline" color="white" variant="solid" label="Thêm giao dịch" @click="isOpen = true"></UButton>
+    </div>
+  </section>
   <section v-if="!isLoading">
-    <h1>TEST API</h1>
+    <h1 class="text-xl font-extrabold">Giao dịch gần đây</h1>
     <div v-for="(transactionsOnDay, date) in transactionsGroupedByDate" :key="date" class="mb-10">
       <Daily-Transaction :date="date" :transactions="transactionsOnDay" />
       <Transaction v-for="transaction in transactionsOnDay" :key="transaction.id" :transaction="transaction" @deleted="fetchTransactions()"/>
@@ -28,7 +40,7 @@ const selectedView = ref(transactionViewOptions[1]);
 
 const isLoading = ref(false);
 const supabase = useSupabaseClient();
-
+const isOpen = ref(false)
 const transactions = ref([]);
 
 const transactionsGroupedByDate = computed (() => {
@@ -53,6 +65,7 @@ const expense = computed(
 )
 const incomeCount = computed(() => income.value.length)
 const expenseCount = computed(() => expense.value.length)
+
 const incomeTotal = computed(
   () => income.value.reduce((sum, transaction) => sum + transaction.amount, 0)
 )
